@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# The MIT License
+# 
+# Copyright (c) <2010> <Shaun T. Erickson>
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+sim_servers="sanctuary1 sanctuary2"
+account="ste"
+grid="$HOME/grid"
+
+if [ -n "${1}" -a \( "${1}" = "coreOS" -o "${1}" = "omfOS" \) ]
+then
+    dist=${1}
+else
+    echo
+    echo "Usage: `basename ${0}` {coreOS|omfOS}"
+    echo
+    exit 1
+fi
+
+#
+# Go to the cloned source directory
+#
+cd ${grid}/${dist}/opensim
+
+#
+# Update it
+#
+git pull > ${grid}/${dist}/build/gp.log 2>&1
+
+#
+# Set up some useful variables:
+#
+# version looks like: 2303945 - r10613 2009-09-06 04:29:21 +0100
+# tag looks like    : r10613
+# build looks like  : build-r10613
+# opensim looks like: opensim-r10613
+#
+if [ "${dist}" = "coreOS" ]
+then
+    version="`git log -n 1 --decorate --oneline | sed -e 's/(HEAD, r\//- r/' -e 's/,.*$//'` `git log -n 1 --pretty="format:%ci"`"
+else
+    version="`git log -n 1 --decorate --oneline | sed -e 's/(.*$/ - r/'``git log -n 1 --pretty="format:%at"` `git log -n 1 --pretty="format:%ci"`"
+fi
+tag="`echo ${version} | awk '{print $3}'`"
+build="build-${tag}"
+opensim="opensim-${tag}"
+
+#
+# Make a clean source tree to build in
+#
+mkdir ${grid}/${dist}/build/${build}
+cd ${grid}/${dist}/build/${build}
+mv ${grid}/${dist}/build/gp.log ${grid}/${dist}/build/${build}.log
+git --git-dir=$HOME/grid/${dist}/opensim/.git --work-tree=. checkout master >> ${grid}/${dist}/build/${build}.log 2>&1
+git --git-dir=$HOME/grid/${dist}/opensim/.git --work-tree=. reset --hard >> ${grid}/${dist}/build/${build}.log 2>&1
+if [ "${dist}" = "coreOS" ]
+then
+    echo ${version} > bin/.version
+else
+    mkdir -p bin/Debug
+    echo ${version} > bin/Debug/.version
+fi
+
+#
+# Build the release
+#
+./runprebuild.sh >> ${grid}/${dist}/build/${build}.log 2>&1
+xbuild >> ${grid}/${dist}/build/${build}.log 2>&1
+tail -5 ${grid}/${dist}/build/${build}.log
+
+#
+# Set up the new runtime structure
+#
+cd ${grid}/${dist}/build
+mkdir ${opensim}
+if [ "${dist}" = "coreOS" ]
+then
+    cp -pr ${build}/bin ./${opensim}
+else
+    cp -pr ${build}/bin/Debug ./${opensim}/bin
+fi
+tar czf ${opensim}.tgz ${opensim}
+
+#
+# Deploy the code
+#
+# I recommend setting up ssh keys, so you don't
+# get prompted for your password twice per server.
+#
+for server in ${sim_servers}
+do
+    scp ${opensim}.tgz ${account}@${server}:grid
+    ssh ${account}@${server} "deploy ${tag}"
+done
