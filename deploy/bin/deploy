@@ -23,7 +23,6 @@
 # THE SOFTWARE.
 
 grid=${HOME}/grid
-region_names="s01 s02 s03 s04 s05 s06 s07 s08 s09 s10"
 
 if [ -n "${1}" ]
 then
@@ -35,21 +34,19 @@ else
     exit 1
 fi
 
-cd ${grid}
-if [ -d "opensim-${rel}" ]
+cd ${grid}/tmp
+if [ ! -f "../dist/opensim-${rel}.tgz" ]
+then
+    echo
+    echo "ERROR: opensim-${rel}.tgz does not exist."
+    echo
+    exit 1
+elif [ -d "opensim-${rel}" ]
 then
     echo
     echo "ERROR: opensim-${rel} appears to be deployed already."
     echo
     exit 1
 else
-    tar xzf opensim-${rel}.tgz
+    tar xzf ../dist/opensim-${rel}.tgz
 fi
-
-cd opensim-${rel}
-mkdir ${region_names}
-
-for i in ${region_names}
-do
-    cp -pr bin ${i}
-done

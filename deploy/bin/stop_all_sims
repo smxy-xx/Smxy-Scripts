@@ -22,14 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-num_screens=10
+region_names="s01 s02 s03 s04 s05 s06 s07 s08 s09 s10"
 wait_seconds=5
 
-i=1
-while [ ${i} -le ${num_screens} ]
+for region in ${region_names}
 do
-    screen -X -S OpenSim -p ${i} stuff "shutdown
+    screen -X -S OpenSim -p ${region} stuff "shutdown
 "
-    let i=${i}+1
     sleep ${wait_seconds}
 done

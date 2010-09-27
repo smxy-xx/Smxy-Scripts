@@ -22,19 +22,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-conf=${HOME}/grid/conf
+grid=${HOME}/grid
 
-i=`dirname ${PWD}`
-region=`basename ${i}`
+sd=${grid}/etc/simdefaults
+lc=${grid}/etc/logconf
+logs=${grid}/var/logs
+adb=${grid}/var/addin-db
 
-if [ -e "OpenSim.exe" ]
+if [ -n "${1}" ]
 then
-    mono OpenSim.exe -inimaster=${conf}/OpenSimDefaults.ini -inifile=${conf}/ini/${region}/OpenSim.ini
+    cd ${grid}/bin
+    mkdir -p ${adb}/${1}
+    MONO_ADDINS_REGISTRY=${adb}/${1} mono OpenSim.exe -inifile=${sd}/${1}.ini -logconfig=${lc}/${1}.config
 else
     echo
-    echo "ERROR: No OpenSim.exe in current directory:"
-    echo "ERROR: ${PWD}"
-    echo "ERROR: Are you in the correct directory?"
+    echo "Usage: `basename ${0}` {region_name}"
     echo
     exit 1
 fi

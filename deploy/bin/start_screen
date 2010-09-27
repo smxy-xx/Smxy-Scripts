@@ -24,9 +24,6 @@
 
 region_names="s01 s02 s03 s04 s05 s06 s07 s08 s09 s10"
 
-regions=($region_names)
-num_regions=${#regions[*]}
-
 retval=`screen -ls | grep OpenSim`
 if [ -n "${retval}" ]
 then
@@ -37,11 +34,8 @@ then
 else
     screen -d -m -S OpenSim
 
-    i=1
-    while [ ${i} -le ${num_regions} ]
+    for region in ${region_names}
     do
-        let j=${i}-1
-        screen -X -S OpenSim screen -t ${regions[${j}]} ${i}
-        let i=${i}+1
+        screen -X -S OpenSim screen -h 1000 -t ${region}
     done
 fi

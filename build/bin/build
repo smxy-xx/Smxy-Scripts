@@ -108,6 +108,6 @@ tar czf ${opensim}.tgz ${opensim}
 #
 for server in ${sim_servers}
 do
-    scp ${opensim}.tgz ${account}@${server}:grid
+    scp ${opensim}.tgz ${account}@${server}:grid/dist
     ssh ${account}@${server} "deploy ${tag}"
 done
