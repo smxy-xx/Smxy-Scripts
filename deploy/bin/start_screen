@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-region_names="s01 s02 s03 s04 s05 s06 s07 s08 s09 s10"
+region_names="robust_hg beauty bliss harmony peace sojourner tranquility"
 
 retval=`screen -ls | grep OpenSim`
 if [ -n "${retval}" ]

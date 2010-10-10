@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-sim_servers="sanctuary1 sanctuary2"
+sim_servers="localhost"
 account="ste"
-grid="$HOME/grid"
+src="$HOME/grid/src"
 
 if [ -n "${1}" -a \( "${1}" = "coreOS" -o "${1}" = "omfOS" \) ]
 then
@@ -39,12 +39,13 @@ fi
 #
 # Go to the cloned source directory
 #
-cd ${grid}/${dist}/opensim
+cd ${src}/${dist}/opensim
 
 #
 # Update it
 #
-git pull > ${grid}/${dist}/build/gp.log 2>&1
+mkdir -p ${src}/${dist}/build
+git pull > ${src}/${dist}/build/gp.log 2>&1
 
 #
 # Set up some useful variables:
@@ -67,11 +68,11 @@ opensim="opensim-${tag}"
 #
 # Make a clean source tree to build in
 #
-mkdir ${grid}/${dist}/build/${build}
-cd ${grid}/${dist}/build/${build}
-mv ${grid}/${dist}/build/gp.log ${grid}/${dist}/build/${build}.log
-git --git-dir=$HOME/grid/${dist}/opensim/.git --work-tree=. checkout master >> ${grid}/${dist}/build/${build}.log 2>&1
-git --git-dir=$HOME/grid/${dist}/opensim/.git --work-tree=. reset --hard >> ${grid}/${dist}/build/${build}.log 2>&1
+mkdir ${src}/${dist}/build/${build}
+cd ${src}/${dist}/build/${build}
+mv ${src}/${dist}/build/gp.log ${src}/${dist}/build/${build}.log
+git --git-dir=${src}/${dist}/opensim/.git --work-tree=. checkout master >> ${src}/${dist}/build/${build}.log 2>&1
+git --git-dir=${src}/${dist}/opensim/.git --work-tree=. reset --hard >> ${src}/${dist}/build/${build}.log 2>&1
 if [ "${dist}" = "coreOS" ]
 then
     echo ${version} > bin/.version
@@ -83,14 +84,14 @@ fi
 #
 # Build the release
 #
-./runprebuild.sh >> ${grid}/${dist}/build/${build}.log 2>&1
-xbuild >> ${grid}/${dist}/build/${build}.log 2>&1
-tail -5 ${grid}/${dist}/build/${build}.log
+./runprebuild.sh >> ${src}/${dist}/build/${build}.log 2>&1
+xbuild >> ${src}/${dist}/build/${build}.log 2>&1
+tail -5 ${src}/${dist}/build/${build}.log
 
 #
 # Set up the new runtime structure
 #
-cd ${grid}/${dist}/build
+cd ${src}/${dist}/build
 mkdir ${opensim}
 if [ "${dist}" = "coreOS" ]
 then

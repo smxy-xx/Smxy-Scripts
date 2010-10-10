@@ -23,7 +23,7 @@
 # THE SOFTWARE.
 
 grid=${HOME}/grid
-region_names="s01 s02 s03 s04 s05 s06 s07 s08 s09 s10"
+region_names="robust_hg beauty bliss harmony peace sojourner tranquility"
 
 wait_seconds=5
 
@@ -32,5 +32,10 @@ for region in ${region_names}
 do
     screen -X -S OpenSim -p ${region} stuff "run_sim ${region}
 "
-    sleep ${wait_seconds}
+    if [ "${region}" = "robust" -o "${region}" = "robust_hg" ]
+    then
+        sleep 30
+    else
+        sleep ${wait_seconds}
+    fi
 done

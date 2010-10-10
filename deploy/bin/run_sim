@@ -26,14 +26,18 @@ grid=${HOME}/grid
 
 sd=${grid}/etc/simdefaults
 lc=${grid}/etc/logconf
-logs=${grid}/var/logs
 adb=${grid}/var/addin-db
 
 if [ -n "${1}" ]
 then
     cd ${grid}/bin
-    mkdir -p ${adb}/${1}
-    MONO_ADDINS_REGISTRY=${adb}/${1} mono OpenSim.exe -inifile=${sd}/${1}.ini -logconfig=${lc}/${1}.config
+    if [ "${1}" = "robust" -o "${1}" = "robust_hg" ]
+    then
+        mono-sgen Robust.exe -inifile=${grid}/etc/${1}.ini -logconfig=${lc}/${1}.config
+    else
+        mkdir -p ${adb}/${1}
+        MONO_ADDINS_REGISTRY=${adb}/${1} mono-sgen OpenSim.exe -inifile=${sd}/${1}.ini -logconfig=${lc}/${1}.config
+    fi
 else
     echo
     echo "Usage: `basename ${0}` {region_name}"
