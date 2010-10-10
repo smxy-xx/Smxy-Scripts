@@ -22,13 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-sim_servers="localhost"
-account="ste"
-src="$HOME/grid/src"
+conf_dir=`dirname $0`
+. ${conf_dir}/.smxyconf
 
 if [ -n "${1}" -a \( "${1}" = "coreOS" -o "${1}" = "omfOS" \) ]
 then
-    dist=${1}
+    distro=${1}
 else
     echo
     echo "Usage: `basename ${0}` {coreOS|omfOS}"
@@ -39,13 +38,13 @@ fi
 #
 # Go to the cloned source directory
 #
-cd ${src}/${dist}/opensim
+cd ${src}/${distro}/opensim
 
 #
 # Update it
 #
-mkdir -p ${src}/${dist}/build
-git pull > ${src}/${dist}/build/gp.log 2>&1
+mkdir -p ${src}/${distro}/build
+git pull > ${src}/${distro}/build/gp.log 2>&1
 
 #
 # Set up some useful variables:
@@ -55,7 +54,7 @@ git pull > ${src}/${dist}/build/gp.log 2>&1
 # build looks like  : build-r10613
 # opensim looks like: opensim-r10613
 #
-if [ "${dist}" = "coreOS" ]
+if [ "${distro}" = "coreOS" ]
 then
     version="`git log -n 1 --decorate --oneline | sed -e 's/(HEAD, r\//- r/' -e 's/,.*$//'` `git log -n 1 --pretty="format:%ci"`"
 else
@@ -68,12 +67,12 @@ opensim="opensim-${tag}"
 #
 # Make a clean source tree to build in
 #
-mkdir ${src}/${dist}/build/${build}
-cd ${src}/${dist}/build/${build}
-mv ${src}/${dist}/build/gp.log ${src}/${dist}/build/${build}.log
-git --git-dir=${src}/${dist}/opensim/.git --work-tree=. checkout master >> ${src}/${dist}/build/${build}.log 2>&1
-git --git-dir=${src}/${dist}/opensim/.git --work-tree=. reset --hard >> ${src}/${dist}/build/${build}.log 2>&1
-if [ "${dist}" = "coreOS" ]
+mkdir ${src}/${distro}/build/${build}
+cd ${src}/${distro}/build/${build}
+mv ${src}/${distro}/build/gp.log ${src}/${distro}/build/${build}.log
+git --git-dir=${src}/${distro}/opensim/.git --work-tree=. checkout master >> ${src}/${distro}/build/${build}.log 2>&1
+git --git-dir=${src}/${distro}/opensim/.git --work-tree=. reset --hard >> ${src}/${distro}/build/${build}.log 2>&1
+if [ "${distro}" = "coreOS" ]
 then
     echo ${version} > bin/.version
 else
@@ -84,16 +83,16 @@ fi
 #
 # Build the release
 #
-./runprebuild.sh >> ${src}/${dist}/build/${build}.log 2>&1
-xbuild >> ${src}/${dist}/build/${build}.log 2>&1
-tail -5 ${src}/${dist}/build/${build}.log
+./runprebuild.sh >> ${src}/${distro}/build/${build}.log 2>&1
+xbuild >> ${src}/${distro}/build/${build}.log 2>&1
+tail -5 ${src}/${distro}/build/${build}.log
 
 #
 # Set up the new runtime structure
 #
-cd ${src}/${dist}/build
+cd ${src}/${distro}/build
 mkdir ${opensim}
-if [ "${dist}" = "coreOS" ]
+if [ "${distro}" = "coreOS" ]
 then
     cp -pr ${build}/bin ./${opensim}
 else
@@ -109,6 +108,12 @@ tar czf ${opensim}.tgz ${opensim}
 #
 for server in ${sim_servers}
 do
-    scp ${opensim}.tgz ${account}@${server}:grid/dist
-    ssh ${account}@${server} "deploy ${tag}"
+    if [ "${server}" = "localhost" ]
+    then
+        cp ${opensim}.tgz ${dist}
+        deploy ${tag}
+    else
+        scp ${opensim}.tgz ${account}@${server}:grid/dist
+        ssh ${account}@${server} "deploy ${tag}"
+    fi
 done

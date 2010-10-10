@@ -22,12 +22,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-region_names="beauty bliss harmony peace sojourner tranquility robust_hg"
-wait_seconds=5
+conf_dir=`dirname $0`
+. ${conf_dir}/.smxyconf
 
+rev_region_names=""
 for region in ${region_names}
+do
+    rev_region_names="${region} ${rev_region_names}"
+done
+rev_region_names=`echo ${rev_region_names} | sed -e 's/ $//'`
+
+for region in ${rev_region_names}
 do
     screen -X -S OpenSim -p ${region} stuff "shutdown
 "
-    sleep ${wait_seconds}
+    if [ "${region}" = "robust" -o "${region}" = "robust_hg" ]
+    then
+        sleep 30
+    else
+        sleep ${wait_seconds}
+    fi
 done

@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-grid=${HOME}/grid
+conf_dir=`dirname $0`
+. ${conf_dir}/.smxyconf
 
 if [ -n "${1}" ]
 then
@@ -34,7 +35,7 @@ else
     exit 1
 fi
 
-cd ${grid}/tmp
+cd ${tmp}
 if [ ! -f "../dist/opensim-${rel}.tgz" ]
 then
     echo
@@ -48,5 +49,5 @@ then
     echo
     exit 1
 else
-    tar xzf ../dist/opensim-${rel}.tgz
+    tar xzf ${dist}/opensim-${rel}.tgz
 fi

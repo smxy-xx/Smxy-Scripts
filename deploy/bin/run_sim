@@ -22,18 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-grid=${HOME}/grid
-
-sd=${grid}/etc/simdefaults
-lc=${grid}/etc/logconf
-adb=${grid}/var/addin-db
+conf_dir=`dirname $0`
+. ${conf_dir}/.smxyconf
 
 if [ -n "${1}" ]
 then
-    cd ${grid}/bin
+    cd ${bin}
     if [ "${1}" = "robust" -o "${1}" = "robust_hg" ]
     then
-        mono-sgen Robust.exe -inifile=${grid}/etc/${1}.ini -logconfig=${lc}/${1}.config
+        mono-sgen Robust.exe -inifile=${etc}/${1}.ini -logconfig=${lc}/${1}.config
     else
         mkdir -p ${adb}/${1}
         MONO_ADDINS_REGISTRY=${adb}/${1} mono-sgen OpenSim.exe -inifile=${sd}/${1}.ini -logconfig=${lc}/${1}.config

@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-region_names="robust_hg beauty bliss harmony peace sojourner tranquility"
-wait_seconds=1
+conf_dir=`dirname $0`
+. ${conf_dir}/.smxyconf
 
 for region in ${region_names}
 do

@@ -22,12 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-grid=${HOME}/grid
-region_names="robust_hg beauty bliss harmony peace sojourner tranquility"
+conf_dir=`dirname $0`
+. ${conf_dir}/.smxyconf
 
-wait_seconds=5
-
-cd ${grid}/bin
+cd ${bin}
 for region in ${region_names}
 do
     screen -X -S OpenSim -p ${region} stuff "run_sim ${region}

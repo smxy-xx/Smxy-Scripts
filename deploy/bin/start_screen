@@ -22,7 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-region_names="robust_hg beauty bliss harmony peace sojourner tranquility"
+conf_dir=`dirname $0`
+. ${conf_dir}/.smxyconf
 
 retval=`screen -ls | grep OpenSim`
 if [ -n "${retval}" ]
