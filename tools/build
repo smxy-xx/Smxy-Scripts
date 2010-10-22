@@ -22,15 +22,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+#
+# Execute the config file, to set up any needed variables.
+#
 conf_dir=`dirname $0`
 . ${conf_dir}/.smxyconf
 
-if [ -n "${1}" -a \( "${1}" = "coreOS" -o "${1}" = "omfOS" \) ]
+#
+# Check for required command line argument
+# and that it's one of the acceptable values.
+# Complain and quit if it's missing or wrong.
+#
+if [ -n "${1}" -a \( "${1}" = "coreOS" -o "${1}" = "fortisOS" \) ]
 then
     distro=${1}
 else
     echo
-    echo "Usage: `basename ${0}` {coreOS|omfOS}"
+    echo "Usage: `basename ${0}` {coreOS|fortisOS}"
     echo
     exit 1
 fi
@@ -66,6 +74,7 @@ opensim="opensim-${tag}"
 
 #
 # Make a clean source tree to build in
+# Never build in your git clone directory.
 #
 mkdir ${src}/${distro}/build/${build}
 cd ${src}/${distro}/build/${build}
@@ -85,6 +94,12 @@ fi
 #
 ./runprebuild.sh >> ${src}/${distro}/build/${build}.log 2>&1
 xbuild >> ${src}/${distro}/build/${build}.log 2>&1
+
+#
+# Show the last 5 lines of the log, to see if there were any errors.
+# To Do: Spit out a message and exit, here, if there were errors,
+# rather than continuing.
+#
 tail -5 ${src}/${distro}/build/${build}.log
 
 #
