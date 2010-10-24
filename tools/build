@@ -129,6 +129,6 @@ do
         deploy ${tag}
     else
         scp ${opensim}.tgz ${account}@${server}:grid/dist
-        ssh ${account}@${server} "deploy ${tag}"
+        ssh ${account}@${server} "grid/tools/deploy ${tag}"
     fi
 done
