@@ -33,12 +33,12 @@ conf_dir=`dirname $0`
 # and that it's one of the acceptable values.
 # Complain and quit if it's missing or wrong.
 #
-if [ -n "${1}" -a \( "${1}" = "coreOS" -o "${1}" = "fortisOS" \) ]
+if [ -n "${1}" -a \( "${1}" = "coreOS" -o "${1}" = "fortisOS" -o "${1}" = "aurora" \) ]
 then
     distro=${1}
 else
     echo
-    echo "Usage: `basename ${0}` {coreOS|fortisOS}"
+    echo "Usage: `basename ${0}` {coreOS|fortisOS|aurora}"
     echo
     exit 1
 fi
@@ -46,7 +46,12 @@ fi
 #
 # Go to the cloned source directory
 #
-cd ${src}/${distro}/opensim
+if [ "${distro}" = "aurora" ]
+then
+    cd ${src}/${distro}/Aurora
+else
+    cd ${src}/${distro}/opensim
+fi
 
 #
 # Update it
@@ -70,7 +75,12 @@ else
 fi
 tag="`echo ${version} | awk '{print $3}'`"
 build="build-${tag}"
-opensim="opensim-${tag}"
+if [ "${distro}" = "aurora" ]
+then
+    opensim="aurora-${tag}"
+else
+    opensim="opensim-${tag}"
+fi
 
 #
 # Make a clean source tree to build in
@@ -79,9 +89,15 @@ opensim="opensim-${tag}"
 mkdir ${src}/${distro}/build/${build}
 cd ${src}/${distro}/build/${build}
 mv ${src}/${distro}/build/gp.log ${src}/${distro}/build/${build}.log
-git --git-dir=${src}/${distro}/opensim/.git --work-tree=. checkout master >> ${src}/${distro}/build/${build}.log 2>&1
-git --git-dir=${src}/${distro}/opensim/.git --work-tree=. reset --hard >> ${src}/${distro}/build/${build}.log 2>&1
-if [ "${distro}" = "coreOS" ]
+if [ "${distro}" = "aurora" ]
+then
+    git --git-dir=${src}/${distro}/Aurora/.git --work-tree=. checkout master >> ${src}/${distro}/build/${build}.log 2>&1
+    git --git-dir=${src}/${distro}/Aurora/.git --work-tree=. reset --hard >> ${src}/${distro}/build/${build}.log 2>&1
+else
+    git --git-dir=${src}/${distro}/opensim/.git --work-tree=. checkout master >> ${src}/${distro}/build/${build}.log 2>&1
+    git --git-dir=${src}/${distro}/opensim/.git --work-tree=. reset --hard >> ${src}/${distro}/build/${build}.log 2>&1
+fi
+if [ "${distro}" = "coreOS" -o "${distro}" = "aurora" ]
 then
     echo ${version} > bin/.version
 else
@@ -107,7 +123,7 @@ tail -5 ${src}/${distro}/build/${build}.log
 #
 cd ${src}/${distro}/build
 mkdir ${opensim}
-if [ "${distro}" = "coreOS" ]
+if [ "${distro}" = "coreOS" -o "${distro}" = "aurora" ]
 then
     cp -pr ${build}/bin ./${opensim}
 else
@@ -129,6 +145,6 @@ do
         deploy ${tag}
     else
         scp ${opensim}.tgz ${account}@${server}:grid/dist
-        ssh ${account}@${server} "grid/tools/deploy ${tag}"
+        ssh ${account}@${server} "grid/tools/deploy ${opensim}"
     fi
 done
